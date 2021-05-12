@@ -8,6 +8,7 @@
 
 import React, {Component} from 'react';
 import type {Node} from 'react';
+
 import {
   SafeAreaView,
   ScrollView,
@@ -53,6 +54,7 @@ const Section = ({children, title}): Node => {
     </View>
   );
 };
+
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
