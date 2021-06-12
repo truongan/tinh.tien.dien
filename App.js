@@ -17,6 +17,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Button,
 } from 'react-native';
 
 import {
@@ -27,33 +28,14 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-
-
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+function list_to_lines(list){
+  line_list = [];
+  for (let index = 0; index < list.length-1; index++) {
+    // console.log(list[index - 1].cs);
+    line_list.push(<Line previous={list[index + 1].cs}  current = {list[index].cs} date={list[index].date} />);
+  }
+  return line_list;
+}
 
 function calc(current ,previous ){
   var amount =  current - previous;
@@ -135,32 +117,44 @@ const List_line = (props) => {
     backgroundColor: ( useColorScheme() === 'dark') ? Colors.darker : Colors.lighter,
   };
   
-  // const [line_list, set_line_list] = useState(props.list);
+  const [line_list, set_line_list] = useState(props.list);
+  const [newcs, set_newcs] = useState(0);
   // set_line_list(props.list);
+  
   return (
-    <View>
+    <View style={[{flex:1}]}>
+      {/* { list_to_lines( line_list ) } */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={[backgroundStyle,
-          {flex: 1}
-        ]}>
-        {/* <Header /> */}
+          {flex: 2}
+      ]}>
+        <Header />
         <View
-          style={{
-            backgroundColor: ( useColorScheme() === 'dark') ? Colors.black : Colors.white,
-          }}>
+        style={{
+          backgroundColor: ( useColorScheme() === 'dark') ? Colors.black : Colors.white,
+        }}>
 
-          {props.list}
+        { list_to_lines( line_list ) }
         </View>
-        
-        
       </ScrollView>
       <View style={[ {flexDirection: 'row'}, styles.bottom, backgroundStyle]}>
         <TextInput
+          keyboardType = 'numeric'
           style={{height: 40, justifyContent: 'flex-start'}}
           placeholder="Type here to translate!"
+          onChangeText={text => { 
+            console.log(text);
+            set_newcs(text);
+          }}
         />
-
+        <Button title="ADD" 
+          onPress = {()=>{
+            console.log(line_list);
+            console.log(newcs);
+            set_line_list([ {cs: newcs, date: Intl.DateTimeFormat('vi-VN').format(new Date())} , ...line_list]);
+          }}
+        />
       </View>
     </View>
   );
@@ -173,31 +167,21 @@ const App: () => Node = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
   list = [
+    {date:'15/5/2021', cs:'8817'},
+    {date:'15/4/2021', cs:'8317'},
+    {date:'15/3/2021', cs:'7841'},
+    {date:'19/2/2021', cs:'7459'},
     {date:'none', cs:'7180'},
-    {date:'19/02/2021', cs:'7459'},
-    {date:'15/03/2021', cs:'7841'},
-    {date:'15/04/2021', cs:'8317'},
-    {date:'15/03/2021', cs:'7841'},
-    {date:'15/04/2021', cs:'8317'},
-    {date:'15/03/2021', cs:'7841'},
-    {date:'15/04/2021', cs:'8317'},
-    {date:'15/03/2021', cs:'7841'},
-    {date:'15/04/2021', cs:'8317'},
-    {date:'15/05/2021', cs:'8817'},
 
   ];
 
-  line_list = [];
-  for (let index = 1; index < list.length; index++) {
-    // console.log(list[index - 1].cs);
-    line_list.push(<Line previous={list[index - 1].cs}  current = {list[index].cs} date={list[index].date} />);
-  }
+
 
   return (
     <SafeAreaView style={[backgroundStyle, styles.container]}>
 
-      <List_line list={line_list}  />
-        
+      <List_line list={list}  />
+
     </SafeAreaView>
   );
 };
