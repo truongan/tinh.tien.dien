@@ -18,6 +18,7 @@ import {
   useColorScheme,
   View,
   Button,
+  Icon,
 } from 'react-native';
 
 import {
@@ -28,11 +29,11 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-function list_to_lines(list){
+function list_to_lines(list, remove_func){
   line_list = [];
   for (let index = 0; index < list.length-1; index++) {
     // console.log(list[index - 1].cs);
-    line_list.push(<Line previous={list[index + 1].cs}  current = {list[index].cs} date={list[index].date} />);
+    line_list.push(<Line remove_func={remove_func} key={index} id={index} previous={list[index + 1].cs}  current = {list[index].cs} date={list[index].date} />);
   }
   return line_list;
 }
@@ -107,6 +108,9 @@ const Line = (props) =>{
         ]}>
         { calc(props.current ,  props.previous) }
       </Text>
+      <Button title="X" style={{ marginLeft:22 }} onPress={ ()=>{ 
+        (props.remove_func)(props.id);
+       }  } />
     </View>
   );
 };
@@ -119,23 +123,31 @@ const List_line = (props) => {
   
   const [line_list, set_line_list] = useState(props.list);
   const [newcs, set_newcs] = useState(0);
-  // set_line_list(props.list);
   
+  const remove_line = (id)=>{
+    console.log(id);
+    var a = line_list.slice();
+    console.log(line_list);
+    a.splice(id,1);
+    set_line_list(a);
+    console.log(line_list);
+
+  }
+
   return (
     <View style={[{flex:1}]}>
-      {/* { list_to_lines( line_list ) } */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={[backgroundStyle,
           {flex: 2}
       ]}>
-        <Header />
+
         <View
         style={{
           backgroundColor: ( useColorScheme() === 'dark') ? Colors.black : Colors.white,
         }}>
 
-        { list_to_lines( line_list ) }
+        { list_to_lines( line_list , remove_line) }
         </View>
       </ScrollView>
       <View style={[ {flexDirection: 'row'}, styles.bottom, backgroundStyle]}>
@@ -144,14 +156,11 @@ const List_line = (props) => {
           style={{height: 40, justifyContent: 'flex-start'}}
           placeholder="Type here to translate!"
           onChangeText={text => { 
-            console.log(text);
             set_newcs(text);
           }}
         />
         <Button title="ADD" 
           onPress = {()=>{
-            console.log(line_list);
-            console.log(newcs);
             set_line_list([ {cs: newcs, date: Intl.DateTimeFormat('vi-VN').format(new Date())} , ...line_list]);
           }}
         />
@@ -179,7 +188,7 @@ const App: () => Node = () => {
 
   return (
     <SafeAreaView style={[backgroundStyle, styles.container]}>
-
+      <Header  />
       <List_line list={list}  />
 
     </SafeAreaView>
@@ -215,6 +224,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
+    justifyContent: 'flex-start'
   },
   highlight: {
     fontWeight: '700',
